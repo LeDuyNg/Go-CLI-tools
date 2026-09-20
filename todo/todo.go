@@ -103,3 +103,23 @@ func (l *List) String() string {
 
 	return formatted
 }
+
+func (l *List) StringVerbose() string {
+	formatted := ""
+	timeFormat := "Jan 2, 2006 03:04:05 PM"
+
+	for k, t := range *l {
+		prefix := "[ ] "
+		createTime := t.CreatedAt.Format(timeFormat)
+		completeTime := ""
+		if t.Done {
+			prefix = "[X] "
+			completeTime = t.CompletedAt.Format(timeFormat)
+			formatted += fmt.Sprintf("%s%d: %s	Created At: %s	Completed At: %s\n", prefix, k+1, t.Task, createTime, completeTime)
+		} else {
+			formatted += fmt.Sprintf("%s%d: %s	Created At: %s\n", prefix, k+1, t.Task, createTime)
+		}
+	}
+
+	return formatted
+}

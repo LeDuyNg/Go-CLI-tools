@@ -43,6 +43,7 @@ func main() {
 	list := flag.Bool("list", false, "List all tasks")
 	complete := flag.Int("complete", 0, "Item to be completed")
 	delete := flag.Int("del", 0, "Delete an item from the list")
+	verbose := flag.Bool("v", false, "Verbose Output")
 
 	flag.Parse()
 	l := &todo.List{}
@@ -56,7 +57,7 @@ func main() {
 	// Decide what to do based on the number of arguments provided
 	switch {
 	// For no extra arguments, print the list
-	case *list:
+	case *list && !*verbose:
 		// List current to do items
 		fmt.Print(l)
 	case *complete > 0:
@@ -98,7 +99,8 @@ func main() {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
 		}
-
+	case *list && *verbose:
+		fmt.Print(l.StringVerbose())
 	default:
 		// Invalid flag provided
 		fmt.Fprintln(os.Stderr, "Invalid option")
