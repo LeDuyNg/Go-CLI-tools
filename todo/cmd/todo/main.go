@@ -15,22 +15,31 @@ var todoFileName = ".todo.json"
 
 // getTask function decides where to get the description for a new
 // task from: arguments or STDIN
-func getTask(r io.Reader, args ...string) (string, error) {
+func getTask(r io.Reader, args ...string) ([]string, error) {
 	if len(args) > 0 {
-		return strings.Join(args, " "), nil
+		return []string{strings.Join(args, " ")}, nil
 	}
 
-	s := bufio.NewScanner(r)
-	s.Scan()
-	if err := s.Err(); err != nil {
-		return "", err
+	scanner := bufio.NewScanner(r)
+	var tasks []string
+	for scanner.Scan() {
+		task := strings.TrimSpace(scanner.Text())
+
+		if task == "" {
+			continue // ignore blank lines
+		}
+
+		tasks = append(tasks, task)
+	}
+	if err := scanner.Err(); err != nil {
+		return nil, err
 	}
 
-	if len(s.Text()) == 0 {
-		return "", fmt.Errorf("Task cannot be blank")
+	if len(tasks) == 0 {
+		return nil, fmt.Errorf("No tasks provided")
 	}
 
-	return s.Text(), nil
+	return tasks, nil
 }
 
 func main() {
@@ -77,12 +86,15 @@ func main() {
 	case *add:
 		// When any arguments (excluding flags) are provided, they will be
 		// used as the new task
-		t, err := getTask(os.Stdin, flag.Args()...)
+		tasks, err := getTask(os.Stdin, flag.Args()...)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
 		}
-		l.Add(t)
+
+		for _, t := range tasks {
+			l.Add(t)
+		}
 
 		// Save the new list
 		if err := l.Save(todoFileName); err != nil {
