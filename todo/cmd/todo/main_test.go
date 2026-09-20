@@ -103,6 +103,34 @@ func TestTodoCLI(t *testing.T) {
 
 	})
 
+	t.Run("ListFinishedTasks", func(t *testing.T) {
+		cmd := exec.Command(cmdPath, "-list", "-done")
+
+		out, err := cmd.CombinedOutput()
+		if err != nil {
+			t.Fatal(err)
+		}
+		expected := fmt.Sprintf("[X] 1: %s\n", task)
+		if expected != string(out) {
+			t.Errorf("Expected %q, got %q instead\n", expected, string(out))
+		}
+
+	})
+
+	t.Run("ListUnfinishedTasks", func(t *testing.T) {
+		cmd := exec.Command(cmdPath, "-list", "-undone")
+
+		out, err := cmd.CombinedOutput()
+		if err != nil {
+			t.Fatal(err)
+		}
+		expected := fmt.Sprintf("[ ] 1: %s\n", task2)
+		if expected != string(out) {
+			t.Errorf("Expected %q, got %q instead\n", expected, string(out))
+		}
+
+	})
+
 	t.Run("DeleteTask", func(t *testing.T) {
 		cmd := exec.Command(cmdPath, "-del", "1")
 		if err := cmd.Run(); err != nil {
