@@ -7,9 +7,14 @@ import (
 	"todo"
 )
 
-const todoFileName = ".todo.json"
+// Default file name
+var todoFileName = ".todo.json"
 
 func main() {
+	// Check if the user defined the ENV VAR for a custom file name
+	if os.Getenv("TODO_FILENAME") != "" {
+		todoFileName = os.Getenv("TODO_FILENAME")
+	}
 	// Parsing command line flags
 	task := flag.String("task", "", "Task to be included in the Todo list")
 	list := flag.Bool("list", false, "List all tasks")
@@ -29,11 +34,7 @@ func main() {
 	// For no extra arguments, print the list
 	case *list:
 		// List current to do items
-		for _, item := range *l {
-			if !item.Done {
-				fmt.Println(item.Task)
-			}
-		}
+		fmt.Print(l)
 	case *complete > 0:
 		// Complete the given item
 		if err := l.Complete(*complete); err != nil {
